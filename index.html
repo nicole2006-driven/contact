@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Form</title>
+</head>
+<body>
+
+<h2>Contact Form</h2>
+
+Name: <input type="text" id="name"><br><br>
+Email: <input type="email" id="email"><br><br>
+Phone: <input type="number" id="phone"><br><br>
+
+<button onclick="addContact()">Add Contact</button>
+
+<h3>Search Contact</h3>
+<input type="text" id="search" onkeyup="displayContacts()" placeholder="Search by name or email">
+
+<h3>Contact List</h3>
+<div id="contactList"></div>
+
+<script>
+
+let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+let editIndex = -1;
+
+// Display contacts
+function displayContacts() {
+    let list = document.getElementById("contactList");
+    let searchValue = document.getElementById("search").value.toLowerCase();
+    list.innerHTML = "";
+
+    contacts.forEach((contact, index) => {
+
+        if (
+            contact.name.toLowerCase().includes(searchValue) ||
+            contact.email.toLowerCase().includes(searchValue)
+        ) {
+
+            list.innerHTML += `
+                <div>
+                    <p>
+                        <b>Name:</b> ${contact.name} <br>
+                        <b>Email:</b> ${contact.email} <br>
+                        <b>Phone:</b> ${contact.phone}
+                    </p>
+                    <button onclick="editContact(${index})">Edit</button>
+                    <button onclick="deleteContact(${index})">Delete</button>
+                    <hr>
+                </div>
+            `;
+        }
+    });
+}
+
+// Add or Update contact
+function addContact() {
+
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+
+    if (name === "" || email === "" || phone === "") {
+        alert("All fields are required!");
+        return;
+    }
+
+    let contactObj = { name, email, phone };
+
+    if (editIndex === -1) {
+        contacts.push(contactObj);
+    } else {
+        contacts[editIndex] = contactObj;
+        editIndex = -1;
+    }
+
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+
+    document.getElementById("name").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("phone").value = "";
+
+    displayContacts();
+}
+
+// Delete contact
+function deleteContact(index) {
+    contacts.splice(index, 1);
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+    displayContacts();
+}
+
+// Edit contact
+function editContact(index) {
+    let contact = contacts[index];
+
+    document.getElementById("name").value = contact.name;
+    document.getElementById("email").value = contact.email;
+    document.getElementById("phone").value = contact.phone;
+
+    editIndex = index;
+}
+
+// Load contacts when page opens
+displayContacts();
+
+</script>
+
+</body>
+</html>
